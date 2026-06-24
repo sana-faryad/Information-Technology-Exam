@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Ontology [
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<rdf:RDF
+    xmlns="http://www.semanticweb.org/healthcare-ontology#"
+    xml:base="http://www.semanticweb.org/healthcare-ontology"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+
+  <owl:Ontology rdf:about="http://www.semanticweb.org/healthcare-ontology">
+    <rdfs:label>Healthcare Clinical Ontology</rdfs:label>
+    <rdfs:comment>OWL 2 DL ontology for the Knowledge Representation exam. University of Verona, Computer Science Department.</rdfs:comment>
+  </owl:Ontology>
+
+
+  <!-- ==================== OBJECT PROPERTIES (R-BOX) ==================== -->
+
+  <owl:ObjectProperty rdf:about="#treats">
+    <rdfs:label>treats</rdfs:label>
+    <rdfs:comment>A Doctor treats a Patient.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Doctor"/>
+    <rdfs:range rdf:resource="#Patient"/>
+    <rdfs:subPropertyOf rdf:resource="#isRelatedTo"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#isTreatedBy">
+    <rdfs:label>isTreatedBy</rdfs:label>
+    <rdfs:comment>Inverse of treats. A Patient is treated by a Doctor.</rdfs:comment>
+    <owl:inverseOf rdf:resource="#treats"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#hasCondition">
+    <rdfs:label>hasCondition</rdfs:label>
+    <rdfs:comment>A Patient has a Condition.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Patient"/>
+    <rdfs:range rdf:resource="#Condition"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#worksAt">
+    <rdfs:label>worksAt</rdfs:label>
+    <rdfs:comment>A MedicalStaff member works at exactly one MedicalFacility (functional).</rdfs:comment>
+    <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+    <rdfs:domain rdf:resource="#MedicalStaff"/>
+    <rdfs:range rdf:resource="#MedicalFacility"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#assists">
+    <rdfs:label>assists</rdfs:label>
+    <rdfs:comment>A Nurse assists a Doctor.</rdfs:comment>
+    <rdfs:domain rdf:resource="#Nurse"/>
+    <rdfs:range rdf:resource="#Doctor"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#assistsInTreatment">
+    <rdfs:label>assistsInTreatment</rdfs:label>
+    <rdfs:comment>Role chain: assists o treats. If a Nurse assists a Doctor who treats a Patient, the Nurse is involved in that treatment.</rdfs:comment>
+    <rdfs:subPropertyOf rdf:resource="#isRelatedTo"/>
+    <owl:propertyChainAxiom rdf:parseType="Collection">
+      <rdf:Description rdf:about="#assists"/>
+      <rdf:Description rdf:about="#treats"/>
+    </owl:propertyChainAxiom>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#performedBy">
+    <rdfs:label>performedBy</rdfs:label>
+    <rdfs:comment>A SurgicalTreatment is performed by a Doctor.</rdfs:comment>
+    <rdfs:domain rdf:resource="#SurgicalTreatment"/>
+    <rdfs:range rdf:resource="#Doctor"/>
+    <rdfs:subPropertyOf rdf:resource="#involves"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#usesDrug">
+    <rdfs:label>usesDrug</rdfs:label>
+    <rdfs:comment>A PharmacologicalTreatment uses exactly one Drug (functional).</rdfs:comment>
+    <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+    <rdfs:domain rdf:resource="#PharmacologicalTreatment"/>
+    <rdfs:range rdf:resource="#Drug"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#refersTo">
+    <rdfs:label>refersTo</rdfs:label>
+    <rdfs:comment>A Doctor refers a Patient to at most one other Doctor (functional).</rdfs:comment>
+    <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#isRelatedTo">
+    <rdfs:label>isRelatedTo</rdfs:label>
+    <rdfs:comment>General symmetric relation between HealthEntities.</rdfs:comment>
+    <rdf:type rdf:resource="&owl;SymmetricProperty"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#isPartOf">
+    <rdfs:label>isPartOf</rdfs:label>
+    <rdfs:comment>Transitive part-of relation, used for anatomical hierarchy and facility sub-units.</rdfs:comment>
+    <rdf:type rdf:resource="&owl;TransitiveProperty"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#involves">
+    <rdfs:label>involves</rdfs:label>
+    <rdfs:comment>Super-property for performedBy and related treatment roles.</rdfs:comment>
+  </owl:ObjectProperty>
+
+
+  <!-- ==================== CLASSES (T-BOX) ==================== -->
+
+  <owl:Class rdf:about="#HealthEntity">
+    <rdfs:label>HealthEntity</rdfs:label>
+    <rdfs:comment>Top primitive concept. Every domain entity is a HealthEntity.</rdfs:comment>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Person">
+    <rdfs:label>Person</rdfs:label>
+    <rdfs:comment>Primitive concept. Person is a subclass of HealthEntity.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#HealthEntity"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Condition">
+    <rdfs:label>Condition</rdfs:label>
+    <rdfs:comment>Primitive concept. A medical condition.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#HealthEntity"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Treatment">
+    <rdfs:label>Treatment</rdfs:label>
+    <rdfs:comment>Primitive concept. A medical treatment.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#HealthEntity"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#MedicalFacility">
+    <rdfs:label>MedicalFacility</rdfs:label>
+    <rdfs:comment>Primitive concept. A medical facility.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#HealthEntity"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Drug">
+    <rdfs:label>Drug</rdfs:label>
+    <rdfs:comment>Primitive concept. A pharmaceutical drug.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#HealthEntity"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Patient">
+    <rdfs:label>Patient</rdfs:label>
+    <rdfs:comment>Patient is equivalent to a Person who has at least one Condition.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Person"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#hasCondition"/>
+            <owl:someValuesFrom rdf:resource="&owl;Thing"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#MedicalStaff">
+    <rdfs:label>MedicalStaff</rdfs:label>
+    <rdfs:comment>MedicalStaff is equivalent to a Person who works at some MedicalFacility.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Person"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#worksAt"/>
+            <owl:someValuesFrom rdf:resource="&owl;Thing"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Doctor">
+    <rdfs:label>Doctor</rdfs:label>
+    <rdfs:comment>Doctor is equivalent to a MedicalStaff member who treats at least one Patient.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#MedicalStaff"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#treats"/>
+            <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            <owl:onClass rdf:resource="#Patient"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Nurse">
+    <rdfs:label>Nurse</rdfs:label>
+    <rdfs:comment>Nurse is equivalent to a MedicalStaff member who assists only Doctors.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#MedicalStaff"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#assists"/>
+            <owl:allValuesFrom rdf:resource="#Doctor"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#AcuteCondition">
+    <rdfs:label>AcuteCondition</rdfs:label>
+    <rdfs:comment>A sudden-onset medical condition. Disjoint with ChronicCondition.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Condition"/>
+    <owl:disjointWith rdf:resource="#ChronicCondition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#ChronicCondition">
+    <rdfs:label>ChronicCondition</rdfs:label>
+    <rdfs:comment>A long-term medical condition.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Condition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#PharmacologicalTreatment">
+    <rdfs:label>PharmacologicalTreatment</rdfs:label>
+    <rdfs:comment>A Treatment that uses at least one Drug.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Treatment"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#usesDrug"/>
+            <owl:someValuesFrom rdf:resource="&owl;Thing"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#SurgicalTreatment">
+    <rdfs:label>SurgicalTreatment</rdfs:label>
+    <rdfs:comment>A Treatment performed by at least one Doctor.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Treatment"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#performedBy"/>
+            <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            <owl:onClass rdf:resource="#Doctor"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Hospital">
+    <rdfs:label>Hospital</rdfs:label>
+    <rdfs:comment>A full hospital facility. Disjoint with Clinic.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#MedicalFacility"/>
+    <owl:disjointWith rdf:resource="#Clinic"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#Clinic">
+    <rdfs:label>Clinic</rdfs:label>
+    <rdfs:comment>An outpatient clinic.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#MedicalFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#EmergencyPatient">
+    <rdfs:label>EmergencyPatient</rdfs:label>
+    <rdfs:comment>A Patient who has at least one AcuteCondition.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Patient"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#hasCondition"/>
+            <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            <owl:onClass rdf:resource="#AcuteCondition"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#ChronicCarePatient">
+    <rdfs:label>ChronicCarePatient</rdfs:label>
+    <rdfs:comment>A Patient who has at least one ChronicCondition.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Patient"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#hasCondition"/>
+            <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minQualifiedCardinality>
+            <owl:onClass rdf:resource="#ChronicCondition"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#InpatientDoctor">
+    <rdfs:label>InpatientDoctor</rdfs:label>
+    <rdfs:comment>A Doctor who treats at least 3 Patients and works at a Hospital.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Doctor"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#treats"/>
+            <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">3</owl:minQualifiedCardinality>
+            <owl:onClass rdf:resource="#Patient"/>
+          </owl:Restriction>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#worksAt"/>
+            <owl:someValuesFrom rdf:resource="#Hospital"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#UnassignedPatient">
+    <rdfs:label>UnassignedPatient</rdfs:label>
+    <rdfs:comment>A Patient who is not treated by anyone.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Patient"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#isTreatedBy"/>
+            <owl:allValuesFrom rdf:resource="&owl;Nothing"/>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#AcuteOrChronicPatient">
+    <rdfs:label>AcuteOrChronicPatient</rdfs:label>
+    <rdfs:comment>A Patient who has either an AcuteCondition or a ChronicCondition.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Patient"/>
+          <owl:Class>
+            <owl:unionOf rdf:parseType="Collection">
+              <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasCondition"/>
+                <owl:someValuesFrom rdf:resource="#AcuteCondition"/>
+              </owl:Restriction>
+              <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasCondition"/>
+                <owl:someValuesFrom rdf:resource="#ChronicCondition"/>
+              </owl:Restriction>
+            </owl:unionOf>
+          </owl:Class>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#NonMedicalPerson">
+    <rdfs:label>NonMedicalPerson</rdfs:label>
+    <rdfs:comment>A Person who is not MedicalStaff.</rdfs:comment>
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Person"/>
+          <owl:Class>
+            <owl:complementOf rdf:resource="#MedicalStaff"/>
+          </owl:Class>
+        </owl:intersectionOf>
+      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:about="#SpecialistDoctor">
+    <rdfs:label>SpecialistDoctor</rdfs:label>
+    <rdfs:comment>A Doctor who treats ChronicCarePatients is classified as a SpecialistDoctor.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="#Doctor"/>
+  </owl:Class>
+
+  <owl:Class>
+    <owl:intersectionOf rdf:parseType="Collection">
+      <rdf:Description rdf:about="#Doctor"/>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#treats"/>
+        <owl:someValuesFrom rdf:resource="#ChronicCarePatient"/>
+      </owl:Restriction>
+    </owl:intersectionOf>
+    <rdfs:subClassOf rdf:resource="#SpecialistDoctor"/>
+  </owl:Class>
+
+
+  <!-- ==================== INDIVIDUALS (A-BOX) ==================== -->
+
+  <owl:NamedIndividual rdf:about="#drRossi">
+    <rdf:type rdf:resource="#Doctor"/>
+    <rdfs:label>drRossi</rdfs:label>
+    <worksAt rdf:resource="#veronaCivile"/>
+    <treats rdf:resource="#marioB"/>
+    <treats rdf:resource="#luciaF"/>
+    <treats rdf:resource="#giovanniM"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#drBianchi">
+    <rdf:type rdf:resource="#Doctor"/>
+    <rdfs:label>drBianchi</rdfs:label>
+    <worksAt rdf:resource="#clinicaSud"/>
+    <treats rdf:resource="#annaN"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#nurseConti">
+    <rdf:type rdf:resource="#Nurse"/>
+    <rdfs:label>nurseConti</rdfs:label>
+    <worksAt rdf:resource="#veronaCivile"/>
+    <assists rdf:resource="#drRossi"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#marioB">
+    <rdf:type rdf:resource="#Patient"/>
+    <rdfs:label>marioB</rdfs:label>
+    <hasCondition rdf:resource="#appendicitis"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#luciaF">
+    <rdf:type rdf:resource="#Patient"/>
+    <rdfs:label>luciaF</rdfs:label>
+    <hasCondition rdf:resource="#hypertension"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#giovanniM">
+    <rdf:type rdf:resource="#Patient"/>
+    <rdfs:label>giovanniM</rdfs:label>
+    <hasCondition rdf:resource="#fracture"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#annaN">
+    <rdf:type rdf:resource="#Patient"/>
+    <rdfs:label>annaN</rdfs:label>
+    <hasCondition rdf:resource="#diabetes"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#appendicitis">
+    <rdf:type rdf:resource="#AcuteCondition"/>
+    <rdfs:label>appendicitis</rdfs:label>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#fracture">
+    <rdf:type rdf:resource="#AcuteCondition"/>
+    <rdfs:label>fracture</rdfs:label>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#hypertension">
+    <rdf:type rdf:resource="#ChronicCondition"/>
+    <rdfs:label>hypertension</rdfs:label>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#diabetes">
+    <rdf:type rdf:resource="#ChronicCondition"/>
+    <rdfs:label>diabetes</rdfs:label>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#tx01">
+    <rdf:type rdf:resource="#PharmacologicalTreatment"/>
+    <rdfs:label>tx01</rdfs:label>
+    <usesDrug rdf:resource="#amoxicillin"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#surgery01">
+    <rdf:type rdf:resource="#SurgicalTreatment"/>
+    <rdfs:label>surgery01</rdfs:label>
+    <performedBy rdf:resource="#drRossi"/>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#amoxicillin">
+    <rdf:type rdf:resource="#Drug"/>
+    <rdfs:label>amoxicillin</rdfs:label>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#veronaCivile">
+    <rdf:type rdf:resource="#Hospital"/>
+    <rdfs:label>veronaCivile</rdfs:label>
+  </owl:NamedIndividual>
+
+  <owl:NamedIndividual rdf:about="#clinicaSud">
+    <rdf:type rdf:resource="#Clinic"/>
+    <rdfs:label>clinicaSud</rdfs:label>
+  </owl:NamedIndividual>
+
+</rdf:RDF>
